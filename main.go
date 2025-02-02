@@ -8,22 +8,18 @@ import (
 )
 
 func main() {
-
-	if len(os.Args) < 3 {
+	if len(os.Args) != 3 {
 		fmt.Println("Usage: program <input_file> <output_file>")
 		os.Exit(1)
 	}
 
-	if !strings.HasSuffix(os.Args[2], ".txt") {
-		fmt.Println("Error: input filename should have a .txt")
-		os.Exit(1)
-	}
-	if !strings.HasSuffix(os.Args[1], ".txt") {
-		fmt.Println("Error: input filename should have a .txt")
+	inputFile, outputFile := os.Args[1], os.Args[2]
+	if !strings.HasSuffix(inputFile, ".txt") || !strings.HasSuffix(outputFile, ".txt") {
+		fmt.Println("Error: Input/output files must have .txt extension")
 		os.Exit(1)
 	}
 
-	str := tools.ReadFileString(os.Args[1])
+	str := tools.ReadFileString(inputFile)
 	str = tools.HexToDecimal(str)
 	str = tools.BinToDecimal(str)
 	str = tools.TransformAToAn(str)
@@ -36,20 +32,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	// avoid position shifts
 	for i := len(startBrac) - 1; i >= 0; i-- {
 		start, end := startBrac[i], endBrac[i]
 		if start+1 >= len(str) || end >= len(str) {
 			fmt.Println("Bracket index out of range")
-			os.Exit(1)
+			continue
 		}
 
 		cmdStr := str[start+1 : end]
 		command, num := tools.SeturnSubStrAndNum(cmdStr)
 
 		if num == -1 {
-			fmt.Print("Invalid flag \n")
-			os.Exit(1)
+			fmt.Printf("Invalid flag: (%s)\n", cmdStr)
+			continue
 		}
 
 		preCommand := str[:start]
@@ -63,15 +58,13 @@ func main() {
 		case "low":
 			preCommand = tools.Low(preCommand, num)
 		default:
-			fmt.Print("Unknown flag \n")
+			fmt.Printf("Unknown flag: (%s)\n", cmdStr)
 		}
 
 		str = strings.TrimSpace(preCommand) + postCommand
 	}
 
-	str = tools.FormatPunctuation(str)
-	str = tools.FormatPunctuation2(str)
-
+	str = tools.FormatWithRegex(str)
 	fmt.Println(str)
-	tools.StringToWriteFile(os.Args[2], str)
+	tools.StringToWriteFile(outputFile, str)
 }

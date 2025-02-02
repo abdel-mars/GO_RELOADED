@@ -3,6 +3,7 @@ package tools
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
@@ -15,52 +16,11 @@ func StringToWriteFile(filename, myString string) {
 		os.Exit(1)
 	}
 	defer f.Close()
-	_, err2 := f.WriteString(myString)
+	_, err2 := f.WriteString(myString + "\n")
 	if err2 != nil {
 		fmt.Println("Error writing to file:", err2)
 		os.Exit(1)
 	}
-}
-
-func FormatPunctuation2(input string) string {
-	var output []rune
-	var prevRune rune
-
-	for _, r := range input {
-		if r == '\'' || r == ' ' {
-			if prevRune == ' ' && r == '\'' {
-				output = output[:len(output)-1]
-				output = append(output, r)
-			} else if prevRune != '\'' || r != ' ' {
-				output = append(output, r)
-			}
-		} else {
-			output = append(output, r)
-		}
-		prevRune = r
-	}
-	return string(output)
-}
-
-func FormatPunctuation(input string) string {
-	var output []rune
-	var prevRune rune
-
-	for index, r := range input {
-		if strings.ContainsRune(".,!?;:", r) {
-			if prevRune == ' ' {
-				output = output[:len(output)-1]
-			}
-			output = append(output, r)
-			if index != len(input)-1 && !unicode.IsPunct(rune(input[index+1])) && input[index+1] != ' ' {
-				output = append(output, ' ')
-			}
-		} else {
-			output = append(output, r)
-		}
-		prevRune = r
-	}
-	return string(output)
 }
 
 func IsVowelOrH(char rune) bool {
@@ -226,4 +186,27 @@ func Low(s string, num int) string {
 		words[i] = strings.ToLower(words[i])
 	}
 	return strings.Join(words, " ")
+}
+
+func FormatWithRegex(final_res string) string {
+	rgx := regexp.MustCompile(`\s*([.,!?:;])\s*`)
+	final_res = rgx.ReplaceAllString(final_res, "$1 ")
+
+	rgx = regexp.MustCompile(`\.\s*\.\s*\.`)
+	final_res = rgx.ReplaceAllString(final_res, "...")
+
+	rgx = regexp.MustCompile(`\.\.\.(\S)`)
+	final_res = rgx.ReplaceAllString(final_res, "... $1")
+
+	rgx = regexp.MustCompile(`\s+([.,!?:;])`)
+	final_res = rgx.ReplaceAllString(final_res, "$1")
+
+	rgx = regexp.MustCompile(`'\s*(.*?)\s*'`)
+	final_res = rgx.ReplaceAllString(final_res, "'$1'")
+
+	lines := strings.Split(final_res, "\n")
+	for i, line := range lines {
+		lines[i] = strings.TrimRight(line, " ")
+	}
+	return strings.Join(lines, "\n")
 }
