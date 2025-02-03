@@ -63,7 +63,8 @@ func main() {
 
 		str = strings.TrimSpace(preCommand) + postCommand
 	}
-
+	
+	str = tools.TransformAToAn(str)
 	str = tools.FormatWithRegex(str)
 	fmt.Println(str)
 	tools.StringToWriteFile(outputFile, str)

@@ -36,7 +36,7 @@ func TransformAToAn(input string) string {
 				if words[i] == "a" {
 					words[i] = "an"
 				} else if words[i] == "A" {
-					words[i] = "An"
+					words[i] = "AN"
 				}
 			}
 		}
