@@ -19,53 +19,59 @@ func main() {
 		os.Exit(1)
 	}
 
-	str := tools.ReadFileString(inputFile)
-	str = tools.HexToDecimal(str)
-	str = tools.BinToDecimal(str)
-	str = tools.TransformAToAn(str)
+	content := tools.ReadFileString(inputFile)
 
-	startBrac := tools.IndexOfStartBrac(str)
-	endBrac := tools.IndexOfEndBrac(str)
+	lines := strings.Split(content, "\n")
+	for i, line := range lines {
+		line = tools.HexToDecimal(line)
+		line = tools.BinToDecimal(line)
+		line = tools.TransformAToAn(line)
 
-	if len(startBrac) != len(endBrac) {
-		fmt.Println("Mismatched brackets in input")
-		os.Exit(1)
-	}
+		startBrac := tools.IndexOfStartBrac(line)
+		endBrac := tools.IndexOfEndBrac(line)
 
-	for i := len(startBrac) - 1; i >= 0; i-- {
-		start, end := startBrac[i], endBrac[i]
-		if start+1 >= len(str) || end >= len(str) {
-			fmt.Println("Bracket index out of range")
+		if len(startBrac) != len(endBrac) {
+			fmt.Println("Mismatched brackets in line:", line)
 			continue
 		}
 
-		cmdStr := str[start+1 : end]
-		command, num := tools.SeturnSubStrAndNum(cmdStr)
+		for j := len(startBrac) - 1; j >= 0; j-- {
+			start, end := startBrac[j], endBrac[j]
+			if start+1 >= len(line) || end >= len(line) {
+				fmt.Println("Bracket index out of range in line:", line)
+				continue
+			}
 
-		if num == -1 {
-			fmt.Printf("Invalid flag: (%s)\n", cmdStr)
-			continue
+			cmdStr := line[start+1 : end]
+			command, num := tools.SeturnSubStrAndNum(cmdStr)
+			if num == -1 {
+				fmt.Printf("Invalid flag: (%s)\n", cmdStr)
+				continue
+			}
+
+			preCommand := line[:start]
+			postCommand := line[end+1:]
+
+			switch command {
+			case "up":
+				preCommand = tools.Up(preCommand, num)
+			case "cap":
+				preCommand = tools.Cap(preCommand, num)
+			case "low":
+				preCommand = tools.Low(preCommand, num)
+			default:
+				fmt.Printf("Unknown flag: (%s)\n", cmdStr)
+			}
+
+			line = strings.TrimSpace(preCommand) + postCommand
 		}
 
-		preCommand := str[:start]
-		postCommand := str[end+1:]
-
-		switch command {
-		case "up":
-			preCommand = tools.Up(preCommand, num)
-		case "cap":
-			preCommand = tools.Cap(preCommand, num)
-		case "low":
-			preCommand = tools.Low(preCommand, num)
-		default:
-			fmt.Printf("Unknown flag: (%s)\n", cmdStr)
-		}
-
-		str = strings.TrimSpace(preCommand) + postCommand
+		line = tools.TransformAToAn(line)
+		line = tools.FormatWithRegex(line)
+		lines[i] = line
 	}
-	
-	str = tools.TransformAToAn(str)
-	str = tools.FormatWithRegex(str)
-	fmt.Println(str)
-	tools.StringToWriteFile(outputFile, str)
+
+	finalStr := strings.Join(lines, "\n")
+	fmt.Println(finalStr)
+	tools.StringToWriteFile(outputFile, finalStr)
 }

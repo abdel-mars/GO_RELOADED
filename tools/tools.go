@@ -28,52 +28,64 @@ func IsVowelOrH(char rune) bool {
 }
 
 func TransformAToAn(input string) string {
-	words := strings.Fields(input)
-	for i := 0; i < len(words)-1; i++ {
-		if strings.EqualFold(words[i], "a") {
-			firstChar := rune(words[i+1][0])
-			if IsVowelOrH(firstChar) {
-				if words[i] == "a" {
-					words[i] = "an"
-				} else if words[i] == "A" {
-					words[i] = "AN"
+	lines := strings.Split(input, "\n")
+	for i, line := range lines {
+		words := strings.Split(line, " ")
+		for j := 0; j < len(words)-1; j++ {
+			if strings.EqualFold(words[j], "a") {
+				firstChar := rune(words[j+1][0])
+				if IsVowelOrH(firstChar) {
+					if words[j] == "a" {
+						words[j] = "an"
+					} else if words[j] == "A" {
+						words[j] = "An"
+					}
 				}
 			}
 		}
+		lines[i] = strings.Join(words, " ")
 	}
-	return strings.Join(words, " ")
+	return strings.Join(lines, "\n")
 }
 
 func HexToDecimal(s string) string {
-	words := strings.Fields(s)
-	for i := 0; i < len(words); i++ {
-		if words[i] == "(hex)" && i > 0 {
-			hexStr := words[i-1]
-			decimalNum, err := strconv.ParseInt(hexStr, 16, 64)
-			if err == nil {
-				words[i-1] = fmt.Sprintf("%d", decimalNum)
-				words = append(words[:i], words[i+1:]...)
-				i--
+	lines := strings.Split(s, "\n")
+	for idx, line := range lines {
+		words := strings.Split(line, " ")
+		for i := 0; i < len(words); i++ {
+			if words[i] == "(hex)" && i > 0 {
+				hexStr := words[i-1]
+				decimalNum, err := strconv.ParseInt(hexStr, 16, 64)
+				if err == nil {
+					words[i-1] = fmt.Sprintf("%d", decimalNum)
+					words = append(words[:i], words[i+1:]...)
+					i--
+				}
 			}
 		}
+		lines[idx] = strings.Join(words, " ")
 	}
-	return strings.Join(words, " ")
+	return strings.Join(lines, "\n")
 }
 
 func BinToDecimal(s string) string {
-	words := strings.Fields(s)
-	for i := 0; i < len(words); i++ {
-		if words[i] == "(bin)" && i > 0 {
-			binStr := words[i-1]
-			decimalNum, err := strconv.ParseInt(binStr, 2, 64)
-			if err == nil {
-				words[i-1] = fmt.Sprintf("%d", decimalNum)
-				words = append(words[:i], words[i+1:]...)
-				i--
+	lines := strings.Split(s, "\n")
+	for idx, line := range lines {
+		words := strings.Split(line, " ")
+		for i := 0; i < len(words); i++ {
+			if words[i] == "(bin)" && i > 0 {
+				binStr := words[i-1]
+				decimalNum, err := strconv.ParseInt(binStr, 2, 64)
+				if err == nil {
+					words[i-1] = fmt.Sprintf("%d", decimalNum)
+					words = append(words[:i], words[i+1:]...)
+					i--
+				}
 			}
 		}
+		lines[idx] = strings.Join(words, " ")
 	}
-	return strings.Join(words, " ")
+	return strings.Join(lines, "\n")
 }
 
 func RemoveBrac(s string) string {
